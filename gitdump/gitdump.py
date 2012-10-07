@@ -57,7 +57,7 @@ def parsetree(repo):
 
 	for line in output.split("\n"):
 		if line.startswith("commit ") and not skip1:
-			gitobject = "tree","",tree,time,tz,author,message;
+			gitobject = "tree","",tree,time,author,message;
 			gitobjs.append(gitobject);
 			message="";
 		elif line.startswith("commit "):
@@ -67,23 +67,40 @@ def parsetree(repo):
 		elif line.startswith("tree"):
 			dummy, tree = line.split();
 		elif line.startswith("parent"):
-			dummy, parent = line.split();
+			pass;
 		elif line.startswith("author"):
 			dummy, right = line.split(" ",1);
 			author, time, tz = right.rsplit(" ",2);
 		elif line.startswith("committer"):
-			dummy = "";
+			pass;
 		elif (len(line) > 0) and (len(message) == 0):
 			message = line;
 
 
-	gitobject = "tree","",tree,time,tz,author,message
+	gitobject = "tree","",tree,time,author,message
 	gitobjs.append(gitobject);
 
 	return gitobjs
 
 
 gitobjs = parsetree(repo);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #with open('/sstorage3/tmp/outfile.csv', 'wb') as outcsv:
 #	outfile = csv.writer(outcsv);
