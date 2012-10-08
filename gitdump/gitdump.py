@@ -8,7 +8,7 @@ import os;
 import subprocess;
 import csv;
 from operator import itemgetter, attrgetter;
-from pygit2 import Repository;
+from pygit2 import Repository,GIT_OBJ_TREE;
 
 repo = '/home/rich/sstore3/gentoo-gitmig/git/gentoo-x86/'
 head = 'c353557f65c845fd25ddda3b0ea9065be77c4a20'
@@ -55,11 +55,8 @@ def parsetreepygit(repo,depth):
 	repository=Repository(repo);
 	gitobjs=[];
 	
-#	depthpar="-"+depth;
-#	output = subprocess.check_output(["git","log","--pretty=raw",depthpar]);
-
 	current = repository.head;
-	currentdepth=1;
+	currentdepth=0;
 	depth=int(depth);
 
 	while currentdepth<depth:
@@ -79,21 +76,18 @@ def parsetreepygit(repo,depth):
 	return gitobjs
 
 
-
-
-
 def processtree(repo,gitobjs):
 	newtree = [];
 	treefound = False;
 	for gitobj in gitobjs:
-		newobjs,newtreefound = processitem(repo,gitobj);
+		newobjs,newtreefound = processitempygit(repo,gitobj);
 		treefound = treefound or newtreefound;
 		newtree.extend(newobjs);
 	
 	return newtree, treefound;
 
 # Note that this function currently discards mode information.  Would be easy to add if we want to check file modes.
-def processitem(repo,gitobj):
+def processitemdirect(repo,gitobj):
 	objtype,name,objid,time,author,message = gitobj;
 
 	if objtype=="blob":
@@ -117,6 +111,42 @@ def processitem(repo,gitobj):
 				newobjs.append(newobj);
 
 	return newobjs, treefound
+
+
+# Note that this function currently discards mode information.  Would be easy to add if we want to check file modes.
+def processitempygit(repo,gitobj):
+	objtype,name,objid,time,author,message = gitobj;
+
+	if objtype=="blob":
+		newobjs=[gitobj];
+		treefound=False;
+	else:
+		newobjs=[];
+		treefound=True;
+		
+		repository=Repository(repo);
+		tree=repository[objid];
+#		tree=repository.lookup_reference(objid);
+		for entry in tree:
+			objtype=repository[entry.oid].type;
+			if objtype==GIT_OBJ_TREE:
+				objtype="tree";
+			else:
+				objtype="blob";
+			objid=entry.hex;
+			elementname=entry.name;
+
+			if objtype=="tree":
+				elementsep="/";
+			else:
+				elementsep="";
+			elementname = name+elementname+elementsep;
+			newobj=objtype,elementname,objid,time,author,message;
+			newobjs.append(newobj);
+
+	return newobjs, treefound
+
+
 
 def prunetree(gitobjs):
 	print "prune tree start ",len(gitobjs);	
@@ -143,7 +173,7 @@ def prunetree(gitobjs):
 
 gitobjs = parsetreepygit(repo,depth);
 
-if False:
+if True:
 	treefound = True;
 	while treefound:
 		print "total tree length: ",len(gitobjs);
@@ -155,17 +185,13 @@ if False:
 
 
 
-
-
-
-
-
-
-
-
-
-
-#with open('/sstorage3/tmp/outfile.csv', 'wb') as outcsv:
-#	outfile = csv.writer(outcsv);
-#	outfile.writerows(gitobjs);
+with open('/sstorage3/tmp/outfile.csv', 'wb') as outcsv:
+	outfile = csv.writer(outcsv);
+	for row in gitobjs:
+		r0,r1,r2,r3,r4,r5 = row;
+		r2=r2.encode('utf-8');
+		r4=r4.encode('utf-8');
+		r5=r5.encode('utf-8');
+		newrow=r0,r1,r2,r3,r4,r5;
+		outfile.writerow(newrow);
 
