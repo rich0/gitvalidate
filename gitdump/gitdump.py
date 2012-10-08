@@ -8,6 +8,7 @@ import os;
 import subprocess;
 import csv;
 from operator import itemgetter, attrgetter;
+from pygit2 import Repository;
 
 repo = '/home/rich/sstore3/gentoo-gitmig/git/gentoo-x86/'
 head = 'c353557f65c845fd25ddda3b0ea9065be77c4a20'
@@ -32,7 +33,7 @@ def parsetree(repo):
 		elif line.startswith("commit "):
 			skip1=False;
 		elif len(message) > 0:
-			message = message + "\n" + line;
+			message = message + "\n" + line[4:];
 		elif line.startswith("tree"):
 			dummy, tree = line.split();
 		elif line.startswith("parent"):
@@ -43,7 +44,7 @@ def parsetree(repo):
 		elif line.startswith("committer"):
 			pass;
 		elif (len(line) > 0) and (len(message) == 0):
-			message = line;
+			message = line[4:];
 
 	gitobject = "tree","",tree,time,author,message
 	gitobjs.append(gitobject);
