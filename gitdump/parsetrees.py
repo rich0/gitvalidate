@@ -4,11 +4,8 @@
 # Copyright 2012, Richard Freeman - See COPYING/README for license details.
 
 import sys;
-import os;
-import subprocess;
 import csv;
-import multiprocessing;
-import itertools;
+import base64;
 from operator import itemgetter, attrgetter;
 from pygit2 import Repository,GIT_OBJ_TREE;
 
@@ -29,10 +26,10 @@ outcsv=open('/sstorage3/tmp/outfile.csv', 'wb');
 outfile=csv.writer(outcsv);
 
 while currentdepth<depth:
-	message=current.message.encode('utf-8');
+	message=base64.b64encode(current.message.encode('utf-8'));
 	tree=current.tree.hex.encode('utf-8');
 	author=current.author.name+" <"+current.author.email+">";
-	author=author.encode('utf-8');
+	author=base64.b64encode(author.encode('utf-8'));
 	time=current.author.time;
 	gitobject="tree","",tree,time,author,message
 	outfile.writerow(gitobject);
