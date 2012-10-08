@@ -179,7 +179,7 @@ def prunetree(gitobjs):
 
 gitobjs = parsetreepygit(repo,depth);
 
-if True:
+if False:
 	treefound = True;
 	while treefound:
 		print "total tree length: ",len(gitobjs);
@@ -200,4 +200,18 @@ with open('/sstorage3/tmp/outfile.csv', 'wb') as outcsv:
 		r5=r5.encode('utf-8');
 		newrow=r0,r1,r2,r3,r4,r5;
 		outfile.writerow(newrow);
+
+if False:
+	newobjs=[];
+	with open('/sstorage3/tmp/outfile.csv','rb') as incsv:
+		infile=csv.reader(incsv);
+		for row in infile:
+			r0,r1,r2,r3,r4,r5 = row;
+			r2=r2.decode('utf-8');
+			r3=int(r3);
+			r4=r4.decode('utf-8');
+			r5=r5.decode('utf-8');
+			newrow=r0,r1,r2,r3,r4,r5;	
+			newobjs.append(newrow);
+	print gitobjs==newobjs;
 
