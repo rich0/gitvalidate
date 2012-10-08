@@ -11,40 +11,6 @@ import csv;
 repo = '/home/rich/sstore3/gentoo-gitmig/git/gentoo-x86/'
 head = 'c353557f65c845fd25ddda3b0ea9065be77c4a20'
 
-def oldparsecommit(repo,commit):
-	os.chdir(repo);
-	output = subprocess.check_output(["git","cat-file","commit",commit]);
-
-	message = "";
-
-	for line in output.split("\n"):
-		if len(message) > 0:
-			message = message + "\n" + line;
-		elif line.startswith("tree"):
-			dummy, tree = line.split();
-		elif line.startswith("parent"):
-			dummy, parent = line.split();
-		elif line.startswith("author"):
-			dummy, right = line.split(" ",1);
-			author, time, tz = right.rsplit(" ",2);
-		elif line.startswith("committer"):
-			dummy = "";
-		elif (len(line) > 0) and (len(message) == 0):
-			message = line;
-
-	gitobject = "tree","",tree,time,tz,author,message
-	return parent,gitobject
-
-def oldparsetree(repo,head):
-	parent = head;
-	gitobjs = [];
-	while parent != "":
-		parent, info = parsecommit(repo, parent);
-		gitobjs.append(info);
-
-	return gitobjs;
-
-
 
 def parsetree(repo):
 	os.chdir(repo);
@@ -54,12 +20,14 @@ def parsetree(repo):
 
 	message = "";
 	skip1=True
+	totaldone=0;
 
 	for line in output.split("\n"):
 		if line.startswith("commit ") and not skip1:
 			gitobject = "tree","",tree,time,author,message;
 			gitobjs.append(gitobject);
 			message="";
+			totaldone = totaldone+1;
 		elif line.startswith("commit "):
 			skip1=False;
 		elif len(message) > 0:
@@ -75,6 +43,8 @@ def parsetree(repo):
 			pass;
 		elif (len(line) > 0) and (len(message) == 0):
 			message = line;
+# only parse 20 commits for faster debugging			
+		if totaldone>=20: break;
 
 
 	gitobject = "tree","",tree,time,author,message
@@ -106,7 +76,6 @@ def processitem(repo,gitobj):
 	if objtype=="blob":
 		newobjs=[gitobj];
 		treefound=False;
-		print "blob ",newobjs
 	else:
 		newobjs=[];
 		treefound=True;
