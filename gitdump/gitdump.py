@@ -7,6 +7,8 @@ import sys;
 import os;
 import subprocess;
 import csv;
+import multiprocessing;
+import itertools;
 from operator import itemgetter, attrgetter;
 from pygit2 import Repository,GIT_OBJ_TREE;
 
@@ -78,13 +80,17 @@ def parsetreepygit(repo,depth):
 
 def processtree(repo,gitobjs):
 	newtree = [];
-	treefound = False;
-	for gitobj in gitobjs:
-		newobjs,newtreefound = processitempygit(repo,gitobj);
-		treefound = treefound or newtreefound;
-		newtree.extend(newobjs);
-	
-	return newtree, treefound;
+
+#	for gitobj in gitobjs:
+#		newobjs = processitempygit(repo,gitobj);
+#		newtree.extend(newobjs);
+
+	pool=multiprocessing.Pool();
+
+	for item in pool.map(processitempygit,gitobjs,10):
+		newtree.extend(item);
+
+	return newtree;
 
 # Note that this function currently discards mode information.  Would be easy to add if we want to check file modes.
 def processitemdirect(repo,gitobj):
@@ -114,15 +120,13 @@ def processitemdirect(repo,gitobj):
 
 
 # Note that this function currently discards mode information.  Would be easy to add if we want to check file modes.
-def processitempygit(repo,gitobj):
+def processitempygit(gitobj):
 	objtype,name,objid,time,author,message = gitobj;
 
 	if objtype=="blob":
 		newobjs=[gitobj];
-		treefound=False;
 	else:
 		newobjs=[];
-		treefound=True;
 		
 		repository=Repository(repo);
 		tree=repository[objid];
@@ -144,7 +148,7 @@ def processitempygit(repo,gitobj):
 			newobj=objtype,elementname,objid,time,author,message;
 			newobjs.append(newobj);
 
-	return newobjs, treefound
+	return newobjs;
 
 
 
@@ -152,7 +156,8 @@ def prunetree(gitobjs):
 	print "prune tree start ",len(gitobjs);	
 	gitobjs=sorted(gitobjs, key=itemgetter(1,3));
 	print "sort done";
-	
+
+	treefound=False;
 	newgitobjs=[];
 	firstitem=True;
 	while len(gitobjs) > 0:
@@ -164,12 +169,13 @@ def prunetree(gitobjs):
 		else:
 			firstitem=False;
 			lastitem = gitobjs.pop();
+		treefound=treefound or lastitem[0]=="tree";
 	newgitobjs.append(lastitem);
 
 
 
 	print "prune tree finish ",len(newgitobjs);
-	return newgitobjs
+	return newgitobjs,treefound
 
 gitobjs = parsetreepygit(repo,depth);
 
@@ -177,8 +183,8 @@ if True:
 	treefound = True;
 	while treefound:
 		print "total tree length: ",len(gitobjs);
-		gitobjs,treefound = processtree(repo,gitobjs);
-		gitobjs=prunetree(gitobjs);
+		gitobjs = processtree(repo,gitobjs);
+		gitobjs,treefound=prunetree(gitobjs);
 
 
 	print "Final tree length: ",len(gitobjs);
