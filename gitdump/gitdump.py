@@ -7,27 +7,28 @@ import sys;
 import os;
 import subprocess;
 import csv;
+from operator import itemgetter, attrgetter;
 
 repo = '/home/rich/sstore3/gentoo-gitmig/git/gentoo-x86/'
 head = 'c353557f65c845fd25ddda3b0ea9065be77c4a20'
 
+depth = sys.argv[1];
 
 def parsetree(repo):
 	os.chdir(repo);
 	gitobjs=[];
-
-	output = subprocess.check_output(["git","log","--pretty=raw"]);
+	
+	depthpar="-"+depth;
+	output = subprocess.check_output(["git","log","--pretty=raw",depthpar]);
 
 	message = "";
 	skip1=True
-	totaldone=0;
 
 	for line in output.split("\n"):
 		if line.startswith("commit ") and not skip1:
 			gitobject = "tree","",tree,time,author,message;
 			gitobjs.append(gitobject);
 			message="";
-			totaldone = totaldone+1;
 		elif line.startswith("commit "):
 			skip1=False;
 		elif len(message) > 0:
@@ -43,9 +44,6 @@ def parsetree(repo):
 			pass;
 		elif (len(line) > 0) and (len(message) == 0):
 			message = line;
-# only parse 20 commits for faster debugging			
-		if totaldone>=20: break;
-
 
 	gitobject = "tree","",tree,time,author,message
 	gitobjs.append(gitobject);
@@ -95,6 +93,28 @@ def processitem(repo,gitobj):
 
 	return newobjs, treefound
 
+def prunetree(gitobjs):
+	print "prune tree start ",len(gitobjs);	
+	gitobjs=sorted(gitobjs, key=itemgetter(1,3));
+	print "sort done";
+	
+	newgitobjs=[];
+	firstitem=True;
+	while len(gitobjs) > 0:
+		if not firstitem:
+			nextitem = gitobjs.pop();			
+			if nextitem[2] != lastitem[2]:
+				newgitobjs.append(lastitem);		
+			lastitem=nextitem;
+		else:
+			firstitem=False;
+			lastitem = gitobjs.pop();
+	newgitobjs.append(lastitem);
+
+
+
+	print "prune tree finish ",len(newgitobjs);
+	return newgitobjs
 
 gitobjs = parsetree(repo);
 
@@ -102,6 +122,8 @@ treefound = True;
 while treefound:
 	print "total tree length: ",len(gitobjs);
 	gitobjs,treefound = processtree(repo,gitobjs);
+	gitobjs=prunetree(gitobjs);
+
 
 print "Final tree length: ",len(gitobjs);
 
