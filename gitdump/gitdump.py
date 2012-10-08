@@ -83,12 +83,58 @@ def parsetree(repo):
 	return gitobjs
 
 
+def processtree(repo,gitobjs):
+	print "process tree";
+	totalobjs=len(gitobjs);
+	curobj=1;
+	newtree = [];
+	treefound = False;
+	for gitobj in gitobjs:
+		newobjs,newtreefound = processitem(repo,gitobj);
+		treefound = treefound or newtreefound;
+		print curobj," / ",totalobjs;
+		curobj = curobj+1;
+		print "added elements: ",len(newobjs);
+		newtree.extend(newobjs);
+	
+	return newtree, treefound;
+
+# Note that this function currently discards mode information.  Would be easy to add if we want to check file modes.
+def processitem(repo,gitobj):
+	objtype,name,objid,time,author,message = gitobj;
+
+	if objtype=="blob":
+		newobjs=[gitobj];
+		treefound=False;
+		print "blob ",newobjs
+	else:
+		newobjs=[];
+		treefound=True;
+		os.chdir(repo);
+		output = subprocess.check_output(["git","ls-tree","-r",objid]);
+		for line in output.split("\n"):
+			if len(line) > 0:
+				mode, objtype, objelement = line.split(" ",3);
+				objid, elementname = objelement.split("\t",1);
+				if objtype=="tree":
+					elementsep="/";
+				else:
+					elementsep="";
+				elementname = name+elementname+elementsep;
+				newobj=objtype,elementname,objid,time,author,message;
+				newobjs.append(newobj);
+
+	return newobjs, treefound
+
+
 gitobjs = parsetree(repo);
 
+treefound = True;
+while treefound:
+	print "total tree length: ",len(gitobjs);
+	gitobjs,treefound = processtree(repo,gitobjs);
 
-
-
-
+print "Final tree length: ",len(gitobjs);
 
 
 
