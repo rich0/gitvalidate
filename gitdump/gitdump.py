@@ -52,17 +52,11 @@ def parsetree(repo):
 
 
 def processtree(repo,gitobjs):
-	print "process tree";
-	totalobjs=len(gitobjs);
-	curobj=1;
 	newtree = [];
 	treefound = False;
 	for gitobj in gitobjs:
 		newobjs,newtreefound = processitem(repo,gitobj);
 		treefound = treefound or newtreefound;
-		print curobj," / ",totalobjs;
-		curobj = curobj+1;
-		print "added elements: ",len(newobjs);
 		newtree.extend(newobjs);
 	
 	return newtree, treefound;
