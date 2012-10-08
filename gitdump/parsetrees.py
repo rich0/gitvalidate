@@ -20,19 +20,22 @@ depth = sys.argv[1];
 #rewrite this former function to just write each line to csv rather than forming a list
 
 repository=Repository(repo);
-gitobjs=[];
 
 current = repository.head;
 currentdepth=0;
 depth=int(depth);
 
+outcsv=open('/sstorage3/tmp/outfile.csv', 'wb');
+outfile=csv.writer(outcsv);
+
 while currentdepth<depth:
-	message=current.message;
-	tree=current.tree.hex;
+	message=current.message.encode('utf-8');
+	tree=current.tree.hex.encode('utf-8');
 	author=current.author.name+" <"+current.author.email+">";
+	author=author.encode('utf-8');
 	time=current.author.time;
 	gitobject="tree","",tree,time,author,message
-	gitobjs.append(gitobject);
+	outfile.writerow(gitobject);
 	if len(current.parents)>0:
 		current=current.parents[0];
 	else:
@@ -41,16 +44,16 @@ while currentdepth<depth:
 
 
 
-
-with open('/sstorage3/tmp/outfile.csv', 'wb') as outcsv:
-	outfile = csv.writer(outcsv);
-	for row in gitobjs:
-		r0,r1,r2,r3,r4,r5 = row;
-		r2=r2.encode('utf-8');
-		r4=r4.encode('utf-8');
-		r5=r5.encode('utf-8');
-		newrow=r0,r1,r2,r3,r4,r5;
-		outfile.writerow(newrow);
+if False:
+	with open('/sstorage3/tmp/outfile.csv', 'wb') as outcsv:
+		outfile = csv.writer(outcsv);
+		for row in gitobjs:
+			r0,r1,r2,r3,r4,r5 = row;
+			r2=r2.encode('utf-8');
+			r4=r4.encode('utf-8');
+			r5=r5.encode('utf-8');
+			newrow=r0,r1,r2,r3,r4,r5;
+			outfile.writerow(newrow);
 
 if False:
 	newobjs=[];
