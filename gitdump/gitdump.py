@@ -15,7 +15,7 @@ head = 'c353557f65c845fd25ddda3b0ea9065be77c4a20'
 
 depth = sys.argv[1];
 
-def parsetree(repo):
+def parsetreedirect(repo,depth):
 	os.chdir(repo);
 	gitobjs=[];
 	
@@ -50,6 +50,36 @@ def parsetree(repo):
 	gitobjs.append(gitobject);
 
 	return gitobjs
+
+def parsetreepygit(repo,depth):
+	repository=Repository(repo);
+	gitobjs=[];
+	
+#	depthpar="-"+depth;
+#	output = subprocess.check_output(["git","log","--pretty=raw",depthpar]);
+
+	current = repository.head;
+	currentdepth=1;
+	depth=int(depth);
+
+	while currentdepth<depth:
+		message=current.message;
+		tree=current.tree.hex;
+		author=current.author.name+" <"+current.author.email+">";
+		time=current.author.time;
+		gitobject="tree","",tree,time,author,message
+		gitobjs.append(gitobject);
+		if len(current.parents)>0:
+			current=current.parents[0];
+		else:
+			break;
+		currentdepth=currentdepth+1;
+
+
+	return gitobjs
+
+
+
 
 
 def processtree(repo,gitobjs):
@@ -111,16 +141,17 @@ def prunetree(gitobjs):
 	print "prune tree finish ",len(newgitobjs);
 	return newgitobjs
 
-gitobjs = parsetree(repo);
+gitobjs = parsetreepygit(repo,depth);
 
-treefound = True;
-while treefound:
-	print "total tree length: ",len(gitobjs);
-	gitobjs,treefound = processtree(repo,gitobjs);
-	gitobjs=prunetree(gitobjs);
+if False:
+	treefound = True;
+	while treefound:
+		print "total tree length: ",len(gitobjs);
+		gitobjs,treefound = processtree(repo,gitobjs);
+		gitobjs=prunetree(gitobjs);
 
 
-print "Final tree length: ",len(gitobjs);
+	print "Final tree length: ",len(gitobjs);
 
 
 
