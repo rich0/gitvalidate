@@ -111,7 +111,7 @@ def processitem(repo,gitobj):
 		newobjs=[];
 		treefound=True;
 		os.chdir(repo);
-		output = subprocess.check_output(["git","ls-tree","-r",objid]);
+		output = subprocess.check_output(["git","ls-tree",objid]);
 		for line in output.split("\n"):
 			if len(line) > 0:
 				mode, objtype, objelement = line.split(" ",3);
