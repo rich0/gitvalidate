@@ -31,7 +31,7 @@ while currentdepth<depth:
 	author=current.author.name+" <"+current.author.email+">";
 	author=base64.b64encode(author.encode('utf-8'));
 	time=current.author.time;
-	gitobject="tree","",tree,time,author,message
+	gitobject="","tree",tree,time,author,message
 	outfile.writerow(gitobject);
 	if len(current.parents)>0:
 		current=current.parents[0];
