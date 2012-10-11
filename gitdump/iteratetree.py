@@ -26,6 +26,12 @@ def csv2string(data):
     cw.writerow(data);
     return si.getvalue().strip('\r\n');
 
+def csv2stringrows(data):
+    si = StringIO.StringIO();
+    cw = csv.writer(si);
+    cw.writerows(data);
+    return si.getvalue();
+
 # mapper input: value = line.  Output key=filename, value=all
 def mapper(key, value):
     repository=Repository(repo);
@@ -61,18 +67,44 @@ def mapper(key, value):
 			yield elementname, csv2string(newrow);
 
 
-# reducer input: key=filename, value=rest.  Output key=filename, value=all.
-# TODO
+# reducer input: key=filename, values=collection of strings of all.  Output key=filename, value=all.
 def reducer(key, values):
-    yield key, sum(values)
+	# first convert values to list
+	gitobjs=[];
+	for row in csv.reader(values):
+		gitobjs.append(row);
+	
+	gitobjs=sorted(gitobjs, key=itemgetter(3));
+	newgitobjs=[];
 
+	firstitem=True;
+	while len(gitobjs) > 0:
+		if not firstitem:
+			nextitem=gitobjs.pop();
+			if nextitem[2] != lastitem[2]:
+				newgitobjs.append(lastitem);
+			lastitem=nextitem;
+		else:
+			firstitem=False;
+			lastitem=gitobjs.pop();
+	newgitobjs.append(lastitem);
+
+	yield key, csv2stringrows(newgitobjs);
 
 # test framework
 inline=",tree,5789de7076bfc534787fb3b072652810ca1ad197,1338260214,SmVmZiBIb3JlbGljayA8amRob3JlQGdlbnRvby5vcmc+,bWFya2VkIHg4NiBwZXIgYnVnIDQxNTM5MwoKKFBvcnRhZ2UgdmVyc2lvbjogMi4yLjBfYWxwaGExMDgvY3ZzL0xpbnV4IGk2ODYsIHVuc2lnbmVkIE1hbmlmZXN0IGNvbW1pdCkK"
 
-for key,value in mapper(0,inline):
-	print "key= ",key
-	print "value= ",value
+redlines=[",tree,5789de7076bfc534787fb3b072652810ca1ad197,1338260214,SmVmZiBIb3JlbGljayA8amRob3JlQGdlbnRvby5vcmc+,bWFya2VkIHg4NiBwZXIgYnVnIDQxNTM5MwoKKFBvcnRhZ2UgdmVyc2lvbjogMi4yLjBfYWxwaGExMDgvY3ZzL0xpbnV4IGk2ODYsIHVuc2lnbmVkIE1hbmlmZXN0IGNvbW1pdCkK",",tree,5931a3b2eee2528e9f51204f8e1ef5e0ca150ce4,1338260203,SmVmZiBIb3JlbGljayA8amRob3JlQGdlbnRvby5vcmc+,bWFya2VkIHg4NiBwZXIgYnVnIDQxNTM5MwoKKFBvcnRhZ2UgdmVyc2lvbjogMi4yLjBfYWxwaGExMDgvY3ZzL0xpbnV4IGk2ODYpCg==",",tree,a2f1b803ef2cc0756c157e952cd9fb922507ea36,1338260095,QW5kcmV5IEtpc2x5dWsgPHdlYXZlckBnZW50b28ub3JnPg==,dmVyc2lvbiBidW1wCgooUG9ydGFnZSB2ZXJzaW9uOiAyLjIuMF9hbHBoYTc0L2N2cy9MaW51eCB4ODZfNjQsIHNpZ25lZCBNYW5pZmVzdCBjb21taXQgd2l0aCBrZXkgMTZFN0Q4RTYpCg=="];
+
+if False:
+	for key,value in mapper(0,inline):
+		print "key= ",key
+		print "value= ",value
+
+if False:
+	for key,value in reducer("asdf",redlines):
+		print "key= ",key
+		print "value= ",value
 
 
 if False:
