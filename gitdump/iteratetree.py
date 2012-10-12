@@ -107,7 +107,7 @@ if False:
 		print "value= ",value
 
 
-if False:
+if True:
 	if __name__ == "__main__":
 	    import dumbo
 	    dumbo.run(mapper, reducer, combiner=reducer)
