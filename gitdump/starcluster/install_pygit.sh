@@ -20,7 +20,7 @@ cd ../../
 # instructions from https://github.com/libgit2/pygit2/blob/master/README.rst
 git clone git://github.com/libgit2/pygit2.git
 cd pygit2
-sudo python setup.py install --prefix=/usr
+sudo python setup.py install 
 
 # avoid "cannot open shared object file" ImportErrors; make sure the libraries are accessible in LD_LIBRARY_PATH
 # if you want a more permanent solution, try echo 'export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH` >> ~/.bashrc
