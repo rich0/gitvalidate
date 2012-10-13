@@ -43,7 +43,7 @@ def mapper(key, value):
 	else:
 		filehash=filehash.decode('utf-8');
 		filename=filename.decode('utf-8');
-		tree=repository[filehash];
+		tree=repository[unicode(filehash)];
 		for entry in tree:
 			objtype=repository[entry.oid].type;
                         if objtype==GIT_OBJ_TREE:
