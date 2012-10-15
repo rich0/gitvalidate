@@ -37,36 +37,35 @@ def csv2stringrows(data):
 repository=Repository(repo);
 for value in sys.stdin:
     value = value.strip();
+    if len(value) > 0:
+	    for row in csv.reader([value]):
+		filename,filetype,filehash,filetime,author,message = row;
+		if filetype.find("blob")!=-1:
+			print '%s\t%s' % (filename,value)
+		else:
+			filehash=filehash.decode('utf-8');
+			filename=filename.decode('utf-8');
+			tree=repository[unicode(filehash)];
+			for entry in tree:
+				objtype=repository[entry.oid].type;
+				if objtype==GIT_OBJ_TREE:
+					objtype="tree";
+				else:
+					objtype="blob";
+				objid=entry.hex;
+				elementname=entry.name;
 
-    for row in csv.reader([value]):
-    	filename,filetype,filehash,filetime,author,message = row;
-	if filetype=="blob":
-		print '%s\t%s' % (filename, row)
-	else:
-		filehash=filehash.decode('utf-8');
-		filename=filename.decode('utf-8');
-		tree=repository[unicode(filehash)];
-		for entry in tree:
-			objtype=repository[entry.oid].type;
-                        if objtype==GIT_OBJ_TREE:
-                                objtype="tree";
-                        else:
-                                objtype="blob";
-                        objid=entry.hex;
-                        elementname=entry.name;
+				if objtype=="tree":
+					elementsep="/";
+				else:
+					elementsep="";
+				elementname = filename+elementname+elementsep;
+				
+				elementname = elementname.encode('utf-8');
+				objid = objid.encode('utf-8');
 
-                        if objtype=="tree":
-                                elementsep="/";
-                        else:
-                                elementsep="";
-                        elementname = filename+elementname+elementsep;
-			
-			elementname = elementname.encode('utf-8');
-			objid = objid.encode('utf-8');
-
-			newrow=elementname,objtype,objid,filetime,author,message
-
-			print '%s\t%s' % (elementname, csv2string(newrow));
+				newrow=elementname,objtype,objid,filetime,author,message
+				print '%s\t%s' % (elementname, csv2string(newrow));
 
 
 # test framework
