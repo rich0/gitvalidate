@@ -10,7 +10,7 @@ import sys;
 from operator import itemgetter, attrgetter;
 from pygit2 import Repository,GIT_OBJ_TREE;
 
-repo = '/data/git/gentoo-x86/'
+repo = '/data/gentoo-x86/'
 head = 'c353557f65c845fd25ddda3b0ea9065be77c4a20'
 
 # CSV input format:
