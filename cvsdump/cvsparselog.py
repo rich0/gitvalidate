@@ -18,53 +18,62 @@ import multiprocessing;
 import itertools;
 import datetime;
 import time;
+import base64;
 import iso8601;
 from operator import itemgetter, attrgetter;
+
+def csv2string(data):
+    si = StringIO.StringIO();
+    cw = csv.writer(si);
+    cw.writerow(data);
+    return si.getvalue().strip('\r\n');
+
 
 repo = '/home/rich/sstore3/gentoo-gitmig/cvs/root/'
 delim1 = "=============================================================================" 
 delim2 = "----------------------------"
 
+outfile=csv.writer(sys.stdout);
+
 section=[]
 for line in sys.stdin:
-	if line.strip() == delim1 and len(values)>0:
+	if line.strip() == delim1 and len(section)>0:
 		startmessage=False;
 		message=""
+		filetime=0;
 		for subline in section:
 			if subline.startswith("Working file: "):
-				filename=subline[14:]
+				filename=subline[14:].strip();
 			elif subline.startswith("revision "):
-				revision=subline[9:]
+				revision=subline[9:].strip()
 			elif subline.startswith("date: "):
-				dummy,date,time,tz,dummy2,author,dummy3,state,dummy4=subline.split(" ",8)
-				tz=tz[:len(tz-1)]
-				author=author[:len(author-1)]
-				filetime=time.mktime(iso8601.parse_date(date+" "+time+" "+tz).timetuple());
+				dummy,date,filetime,tz,dummy2,dummy2a,author,dummy3,dummy3a,state=subline.split(" ",9)
+				state= state[:state.find(";")];
+				tz=tz[:len(tz)-1]
+				author=author[:len(author)-1]
+				filetime=time.mktime(iso8601.parse_date(date+" "+filetime+" "+tz).timetuple());
 				startmessage=True;
-			elif subline==delim2:
-				#dump the revision
-
-
-
-# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
+			elif subline.strip()==delim2 and filetime:
+				newrow=filename.encode('utf-8'),filetime,base64.b64encode(author.encode('utf-8')),base64.b64encode(message.encode('utf-8')),revision,state;
+				outfile.writerow(newrow);
 
 				startmessage=False
 				message=""
-			elif startmessage
-				message=message+"\n"+subline;
-			
-
+			elif startmessage:
+				if len(message)>0:
+					sep="\n"
+				else:
+					sep=""
+				message=message+sep+subline;
 
 		
-	
-
-
+		newrow=filename.encode('utf-8'),filetime,base64.b64encode(author.encode('utf-8')),base64.b64encode(message.encode('utf-8')),revision,state;
+		outfile.writerow(newrow);
 
 
 		section=[]
 	else:
-		section.append(value);
+		section.append(line);
 
 
 
