@@ -54,7 +54,7 @@ for line in sys.stdin:
 				filetime=time.mktime(iso8601.parse_date(date+" "+filetime+" "+tz).timetuple());
 				startmessage=True;
 			elif subline.strip()==delim2 and filetime:
-				newrow=filename.encode('utf-8'),filetime,base64.b64encode(author.encode('utf-8')),base64.b64encode(message.encode('utf-8')),revision,state;
+				newrow=filename.encode('utf-8'),filetime,base64.b64encode(author.encode('utf-8')),base64.b64encode(message),revision,state;
 				outfile.writerow(newrow);
 
 				startmessage=False
@@ -67,7 +67,7 @@ for line in sys.stdin:
 				message=message+sep+subline;
 
 		
-		newrow=filename.encode('utf-8'),filetime,base64.b64encode(author.encode('utf-8')),base64.b64encode(message.encode('utf-8')),revision,state;
+		newrow=filename.encode('utf-8'),filetime,base64.b64encode(author.encode('utf-8')),base64.b64encode(message),revision,state;
 		outfile.writerow(newrow);
 
 
