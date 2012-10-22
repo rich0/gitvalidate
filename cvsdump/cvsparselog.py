@@ -42,18 +42,7 @@ for line in sys.stdin:
 		message=""
 		filetime=0;
 		for subline in section:
-			if subline.startswith("Working file: "):
-				filename=subline[14:].strip();
-			elif subline.startswith("revision "):
-				revision=subline[9:].strip()
-			elif subline.startswith("date: "):
-				dummy,date,filetime,tz,dummy2,dummy2a,author,dummy3,dummy3a,state=subline.split(" ",9)
-				state= state[:state.find(";")];
-				tz=tz[:len(tz)-1]
-				author=author[:len(author)-1]
-				filetime=time.mktime(iso8601.parse_date(date+" "+filetime+" "+tz).timetuple());
-				startmessage=True;
-			elif subline.strip()==delim2 and filetime:
+			if subline.strip()==delim2 and filetime:
 				newrow=filename.encode('utf-8'),filetime,base64.b64encode(author.encode('utf-8')),base64.b64encode(message.strip()),revision,state;
 				outfile.writerow(newrow);
 
@@ -65,6 +54,18 @@ for line in sys.stdin:
 				else:
 					sep=""
 				message=message+sep+subline;
+			elif subline.startswith("Working file: "):
+				filename=subline[14:].strip();
+			elif subline.startswith("revision "):
+				revision=subline[9:].strip()
+			elif subline.startswith("date: "):
+				dummy,date,filetime,tz,dummy2,dummy2a,author,dummy3,dummy3a,state=subline.split(" ",9)
+				state= state[:state.find(";")];
+				tz=tz[:len(tz)-1]
+				author=author[:len(author)-1]
+				filetime=time.mktime(iso8601.parse_date(date+" "+filetime+" "+tz).timetuple());
+				startmessage=True;
+
 
 		
 		newrow=filename.encode('utf-8'),filetime,base64.b64encode(author.encode('utf-8')),base64.b64encode(message.strip()),revision,state;
