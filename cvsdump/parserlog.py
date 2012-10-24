@@ -11,6 +11,7 @@
 # message (utf8+base64)
 
 # Expects rlog format from rlog -z+00:00
+# rlog must be run from repository root so all paths relative
 
 import sys;
 import os;
@@ -57,8 +58,10 @@ for line in sys.stdin:
 				else:
 					sep=""
 				message=message+sep+subline;
-			elif subline.startswith("Working file: "):
-				filename=subline[14:].strip();
+			elif subline.startswith("RCS file: "):
+				filename=subline[10:].strip();
+				filename=filename.replace("Attic/","")
+				filename=filename[:len(filename)-2]
 			elif subline.startswith("revision "):
 				revision=subline[9:].strip()
 			elif subline.startswith("date: "):
