@@ -11,7 +11,7 @@
 # message (utf8+base64)
 
 # Expects rlog format from rlog -z+00:00
-# rlog must be run from repository root so all paths relative
+# rlog must be run from repository root so all paths relative with ./ prepended to path - as in find | grep ",v" | xargs -n 1 rlog -z+00:00
 
 import sys;
 import os;
@@ -61,7 +61,7 @@ for line in sys.stdin:
 			elif subline.startswith("RCS file: "):
 				filename=subline[10:].strip();
 				filename=filename.replace("Attic/","")
-				filename=filename[:len(filename)-2]
+				filename=filename[2:len(filename)-2]
 			elif subline.startswith("revision "):
 				revision=subline[9:].strip()
 			elif subline.startswith("date: "):
