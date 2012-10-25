@@ -23,6 +23,7 @@ import datetime;
 import time;
 import base64;
 import iso8601;
+import re;
 from dateutil import tz;
 from operator import itemgetter, attrgetter;
 
@@ -39,6 +40,8 @@ delim2 = "----------------------------"
 
 outfile=csv.writer(sys.stdout);
 
+#stripfooter = re.compile('\n\n\(.*\)$')
+
 section=[]
 for line in sys.stdin:
 	if line.strip() == delim1 and len(section)>0:
@@ -47,6 +50,7 @@ for line in sys.stdin:
 		filetime=0;
 		for subline in section:
 			if subline.strip()==delim2 and filetime:
+				message=re.sub(r'\n\n[\ ]*\(.*\)', '', message.strip()).strip();
 				newrow=filename.encode('utf-8'),filetime,base64.b64encode(author.encode('utf-8')),base64.b64encode(message.strip()),revision,state;
 				outfile.writerow(newrow);
 
@@ -77,7 +81,7 @@ for line in sys.stdin:
 				startmessage=True;
 
 
-		
+		message=re.sub(r'\n\n[\ ]*\(.*\)', '', message.strip()).strip();
 		newrow=filename.encode('utf-8'),filetime,base64.b64encode(author.encode('utf-8')),base64.b64encode(message.strip()),revision,state;
 		outfile.writerow(newrow);
 
