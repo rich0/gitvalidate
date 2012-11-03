@@ -32,6 +32,6 @@ for line in sys.stdin:
                 output='\n'.join(output)
                 final="blob "+str(len(output))+"\x00"+output;
                 filehash=hashlib.sha1(final).hexdigest();
-                newrow=filename,"blob",filehash,filetime,author,message
+                newrow=filename,"blob",filehash,filetime,author,message,revision
                 outfile.writerow(newrow)
 
