@@ -15,6 +15,7 @@ from operator import itemgetter;
 # filetime - unix timecode
 # author - utf8+base64
 # message - utf8+base64
+# commit - utf8
 
 def csv2stringrows(data):
     si = StringIO.StringIO();

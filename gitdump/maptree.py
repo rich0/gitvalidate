@@ -36,7 +36,7 @@ for value in sys.stdin:
     value = value.strip();
     if len(value) > 0:
         for row in csv.reader([value]):
-            filename,filetype,filehash,filetime,author,message = row;
+            filename,filetype,filehash,filetime,author,message,commit = row;
             if filetype.find("blob")!=-1:
                 print '%s\t%s' % (filename,value)
             else:
@@ -61,6 +61,6 @@ for value in sys.stdin:
                     elementname = elementname.encode('utf-8');
                     objid = objid.encode('utf-8');
     
-                    newrow=elementname,objtype,objid,filetime,author,message
+                    newrow=elementname,objtype,objid,filetime,author,message,commit
                     print '%s\t%s' % (elementname, csv2string(newrow));
 
