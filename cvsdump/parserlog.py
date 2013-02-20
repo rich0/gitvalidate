@@ -72,6 +72,7 @@ for line in sys.stdin:
 
 
         message=re.sub(r'\n\n[\ ]*\(.*\)', '', message.strip()).strip();
+	message=re.sub(r'\n\n','\n', message.strip()).strip();
         newrow=filename.encode('utf-8'),filetime,base64.b64encode(author.encode('utf-8')),base64.b64encode(message.strip()),revision,state;
         outfile.writerow(newrow);
 
