@@ -8,7 +8,7 @@ import StringIO;
 import sys;
 from pygit2 import Repository,GIT_OBJ_TREE;
 
-repo = '/data/gentoo-x86/'
+repo = sys.argv[1] # '/data/gentoo-x86/'
 
 # CSV input format:
 # filename - utf8

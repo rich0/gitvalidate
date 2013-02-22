@@ -1,0 +1,6 @@
+#!/bin/bash
+# Process an entire git tree.  Parameters:
+# $1 - path to git tree root
+# $2 - git head commit
+
+parsetrees.py "$1" "$2" 999999999 | parallel --pipe maptree.py "$1" | sort -t , -k 1,1 | reducetree.py | sed '/^$/d' | parallel --pipe maptree.py "$1" | sort -t , -k 1,1 | reducetree.py | sed '/^$/d' | parallel --pipe maptree.py "$1" | sort -t , -k 1,1 | reducetree.py | sed '/^$/d' | parallel --pipe maptree.py "$1" | sort -t , -k 1,1 | reducetree.py | sed '/^$/d' | parallel --pipe maptree.py "$1" | sort -t , -k 1,1 | reducetree.py | sed '/^$/d' | parallel --pipe maptree.py "$1" | sort -t , -k 1,1 | reducetree.py | sed '/^$/d' | parallel --pipe maptree.py "$1" | sort -t , -k 1,1 | reducetree.py | sed '/^$/d' | parallel --pipe maptree.py "$1" | sort -t , -k 1,1 | reducetree.py | sed '/^$/d' | parallel --pipe maptree.py "$1" | sort -t , -k 1,1 | reducetree.py | sed '/^$/d' | parallel --pipe maptree.py "$1" | sort -t , -k 1,1 | reducetree.py | sed '/^$/d' | parallel --pipe maptree.py "$1" | sort -t , -k 1,1 | reducetree.py | sed '/^$/d' | parallel --pipe maptree.py "$1" | sort -t , -k 1,1 | reducetree.py | sed '/^$/d' | parallel --pipe maptree.py "$1" | sort -t , -k 1,1 | reducetree.py | sed '/^$/d'

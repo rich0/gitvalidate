@@ -8,10 +8,10 @@ import csv;
 import base64;
 from pygit2 import Repository;
 
-repo = '/data/gentoo-x86/'
-head = 'c353557f65c845fd25ddda3b0ea9065be77c4a20'
+repo = sys.argv[1]  # '/data/gentoo-x86/'
+head = sys.argv[2] # 'c353557f65c845fd25ddda3b0ea9065be77c4a20'
 
-depth = sys.argv[1];
+depth = sys.argv[3];
 
 #rewrite this former function to just write each line to csv rather than forming a list
 
