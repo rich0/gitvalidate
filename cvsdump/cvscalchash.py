@@ -16,8 +16,8 @@ import subprocess;
 import csv;
 import hashlib;
 
-repo = '/home/rich/sstore3/gentoo-gitmig/cvs/checkout/gentoo-x86/'
-module = 'gentoo-x86/'
+repo = sys.argv[1]    #  '/home/rich/sstore3/gentoo-gitmig/cvs/checkout/gentoo-x86/'
+module = sys.argv[2] # 'gentoo-x86/'
 
 outfile=csv.writer(sys.stdout);
 os.chdir(repo);
