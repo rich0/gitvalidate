@@ -1,6 +1,33 @@
 Tools to be used to validate the Gentoo cvs->git migration.
 
+Still could use a bit of refinement, but here is how to use these:
+1.  Setup
+   a. Install dependencies.  Includes dos2unix, pygit.
+   b. Have lots of TMPDIR space - haven't measured but could easily be 10GB
+      (merge sort between map and reduce - the rest is piped).
+2.  For CVS, run cvsdump/cvsprocesstree.sh <path to gentoo-x86 in cvs root>
+    <path to checkout of gentoo-x86>.  Be sure your checkout points to the root and
+    not to gentoo's cvs server or you'll hammer it.
+3.  For git, run gitdump/gitprocesstree.sh <path to git tree root> <head commit
+    hash>.  Yes, I'm sure I can get rid of that hash.
 
+Both scripts dump to stdout (eventually) in csv format - you'll want to redirect
+to a file.  Output is 1 line per commit per file.  Ideally all the lines would
+correspond, but with the commit squashing/etc it doesn't work out quite that
+way.  I've been loading into mysql and running queries.  Note that
+message/author is in base64 to simplify file format (no line breaks).
+
+This will parallelize to however many cpus you have - it runs near 100% on all
+of them most of the time (except when sort is catching up).  RAM use is pretty
+light - sort probably uses most of it unless you have a LOT of cpus - everything
+else is piped and doesn't queue up much, and sort does an on-disk merge.
+
+I have things tuned for 4 cpus right now.  The cvs scripts have some options
+around how you parallelize it.  Logparse and cvscalchash do not care about line
+order, so you can pipe those two together as a unit and run that in parallel, or
+run each independently in parallel.  I suspect depending on hardware details
+they might vary in relative speed - this is what gave the highest CPU load in my
+tests.
 
 
 License
